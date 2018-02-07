@@ -1,37 +1,37 @@
-## Welcome to GitHub Pages
+Real Estate General Pricing Model
 
-You can use the [editor on GitHub](https://github.com/fabiengueret/realestate/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+# Objectives
+General Project aiming at modelling prices for the real estate market according to location and type of property in the UK.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+-The model should detect property types and differentiate between them.
 
-### Markdown
+-The model should produce sensitivities to property features beyond the traditional characteristics (eg design or luxury level)
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+-The model needs to be actionable
 
-```markdown
-Syntax highlighted code block
+-The property owners or investors should be able to know what improvement to make
 
-# Header 1
-## Header 2
-### Header 3
+-The model should be able to identify outlier for investment opportunities
 
-- Bulleted
-- List
+# Project blocks
 
-1. Numbered
-2. List
+Project Divided in different blocks
 
-**Bold** and _Italic_ and `Code` text
+## Trawling the existing real estate websites (rightmove and Zoopla)
 
-[Link](url) and ![Image](src)
-```
+## Regression / Prediction
+-Data Analytics / Rental Yield
+-Data Analytics / Offer Prices
+-Data Analytics / realised prices
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+## CLassification
+Property Types: clustering
 
-### Jekyll Themes
+## Geo-localisation
+Location and postcodes finder
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/fabiengueret/realestate/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+## Soft features detection
+- design quality
+- age
+- attractivity
 
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
