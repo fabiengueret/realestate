@@ -1,6 +1,6 @@
-Real Estate General Pricing Model
+# Real Estate General Pricing Model
 
-# Objectives
+## Objectives
 General Project aiming at modelling prices for the real estate market according to location and type of property in the UK.
 
 -The model should detect property types and differentiate between them.
@@ -13,24 +13,24 @@ General Project aiming at modelling prices for the real estate market according 
 
 -The model should be able to identify outlier for investment opportunities
 
-# Project blocks
+## Project blocks
 
 Project Divided in different blocks
 
-## Trawling the existing real estate websites (rightmove and Zoopla)
+### Trawling the existing real estate websites (rightmove and Zoopla)
 
-## Regression / Prediction
+### Regression / Prediction
 -Data Analytics / Rental Yield
 -Data Analytics / Offer Prices
 -Data Analytics / realised prices
 
-## CLassification
+### CLassification
 Property Types: clustering
 
-## Geo-localisation
+### Geo-localisation
 Location and postcodes finder
 
-## Soft features detection
+### Soft features detection
 - design quality
 - age
 - attractivity
