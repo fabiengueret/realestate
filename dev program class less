@@ -1,0 +1,134 @@
+from lxml import html, etree
+import requests
+import pandas as pd
+import datetime as dt
+import matplotlib.pyplot as plt
+import rightmove_webscraper
+import sqlite3
+from outcodedict import urlRM, Outward
+
+PostCodeT = input("Postcode? : ")
+# Ask for type of property advertised. asking until the answer starts with S or R
+# Initialisation 
+SaleorRent = "Begin"
+while SaleorRent.upper()[0] not in ["S","R"] :
+      SaleorRent = input("Sale or Rent / S or R ? : ") 
+      
+#Cut the answer to the first letter and upper case it to limit errors
+SaleorRent= SaleorRent.upper()[0]
+#print(SaleorRent)
+url = urlRM(Outward(PostCodeT),SaleorRent)
+
+try:
+      if "searchType=SALE" in url or "property-for-sale" in url:
+         rent_or_sale = "SALE"
+      elif "searchType=RENT" in url or "property-to-rent" in url:
+         rent_or_sale = "RENT"
+except ValueError:
+            print("Not a valid rightmove search URL.")
+
+"""Returns an integer of the total number of results returned by the search URL."""
+        
+# FG pind the url for information
+page = requests.get(url)
+# FG Get the content of the hhtp/url and parse it using the html module
+tree = html.fromstring(page.content)
+
+# FG 
+xp_result_count = """//span[@class="searchHeader-resultCount"]/text()"""
+# FG query in tree for the result count on the page
+results_count = int(tree.xpath(xp_result_count)[0].replace(",", ""))
+
+print(results_count)
+
+"""Returns the number of result pages returned by the search URL.
+   There are 24 results on each results page, but note that the
+   rightmove website limits results pages to a maximum of 42 pages."""
+
+page_count = results_count // 24
+        
+if results_count % 24 > 0:
+   page_count += 1
+
+# Rightmove will return a maximum of 42 results pages, hence:
+if page_count > 42: page_count = 42
+
+print(page_count)
+
+
+
+"""This is a hidden method to scrape the data from a single page
+   of search results. It is used iteratively by the .get_results()
+   method to scrape data from every page returned by the search."""
+
+# Set the correct xpath for the price.
+if rent_or_sale == "RENT":
+   xp_prices = """//span[@class="propertyCard-priceValue"]/text()"""
+elif rent_or_sale == "SALE":
+   xp_prices = """//div[@class="propertyCard-priceValue"]/text()"""
+
+# Set the xpaths for listing title, property address, 
+# listing URL, and agent URL.
+xp_titles = """//div[@class="propertyCard-details"]\
+//a[@class="propertyCard-link"]\
+//h2[@class="propertyCard-title"]/text()"""
+xp_addresses = """//address[@class="propertyCard-address"]//span/text()"""
+xp_layus = """//div[@class="propertyCard-description"]\
+//a[@class="propertyCard-link"]//span/text()"""
+xp_addedon = """//div[@class="propertyCard-detailsFooter"]\
+//div[@class="propertyCard-branchSummary"]\
+//span[@class="propertyCard-branchSummary-addedOrReduced"]/text()"""
+xp_weblinks = """//div[@class="propertyCard-details"]\
+//a[@class="propertyCard-link"]/@href"""
+xp_agent_urls = """//div[@class="propertyCard-contactsItem"]\
+//div[@class="propertyCard-branchLogo"]\
+//a[@class="propertyCard-branchLogo-link"]/@href"""
+
+# Use the requests library to get the whole web page.
+    
+
+#for page in range(0, self.result_pages_count+1, 1):
+
+page = 1
+
+# Create the URL of the specific results page.
+iteration_url = "{}{}{}".format(str(url), "&index=", str((page*24)))
+
+page_url = iteration_url
+
+page = requests.get(page_url)
+
+# Process the html.
+tree = html.fromstring(page.content)
+        
+# Create data lists from Xpaths.
+price_pcm = tree.xpath(xp_prices)
+titles = tree.xpath(xp_titles)
+addresses = tree.xpath(xp_addresses)
+laius = tree.xpath(xp_layus)
+addedon = tree.xpath(xp_addedon)
+urlbase = "http://www.rightmove.co.uk"
+weblinks = ["{}{}".format(urlbase, tree.xpath(xp_weblinks)[val]) \
+        for val in range(len(tree.xpath(xp_weblinks)))]
+agent_urls = ["{}{}".format(urlbase, tree.xpath(xp_agent_urls)[val]) \
+        for val in range(len(tree.xpath(xp_agent_urls)))]
+        
+# Store the data in a temporary pandas DataFrame.
+data = [price_pcm, titles, addresses, laius, addedon , weblinks, agent_urls]
+temp_df = pd.DataFrame(data)
+temp_df = temp_df.transpose()
+temp_df.columns = ["price", "type", "address","short desc", "listing date","url", "agent_url"]
+        
+# Drop empty rows which come from placeholders in the html.
+temp_df = temp_df[temp_df["address"].notnull()]
+
+        
+#print(rightmove_object.result_pages_count)
+#print(rightmove_object.url)
+
+# Create the DataFrame of results
+#df = RMData.get_results()
+
+# Look at some of the results
+print(temp_df.head())
+
