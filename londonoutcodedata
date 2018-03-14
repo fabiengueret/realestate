@@ -1,0 +1,121 @@
+E1,"Whitechapel, Stepney, Mile End"
+E1W,Wapping
+E2,"Bethnal Green, Shoreditch"
+E3,"Bow, Bromley-by-Bow"
+E4,"Chingford, Highams Park"
+E5,Clapton
+E6,East Ham
+E7,"Forest Gate, Upton Park"
+E8,"Hackney, Dalston"
+E9,"Hackney, Homerton"
+E10,Leyton
+E11,Leytonstone
+E12,Manor Park
+E13,Plaistow
+E14,"Poplar, Millwall, Isle of Dogs, Docklands"
+E15,"Stratford, West Ham"
+E16,"Canning Town, North Woolwich, Docklands"
+E17,Walthamstow
+E18,South Woodford
+E20,Olympic Park
+WC1,"Bloomsbury, Grays Inn"
+WC2,"Covent Garden, Holborn, Strand"
+EC1,"Clerkenwell, Finsbury, Barbican"
+EC2,"Moorgate, Liverpool Street"
+EC3,"Monument, Tower Hill, Aldgate"
+EC4,"Fleet Street, St. Pauls"
+N1,"Islington, Barnsbury, Canonbury"
+N2,East Finchley
+N3,Finchley Central
+N4,"Finsbury Park, Manor House"
+N5,Highbury
+N6,Highgate
+N7,Holloway
+N8,"Hornsey, Crouch End"
+N9,Lower Edmonton
+N10,Muswell Hill
+N11,"Friern Barnet, New Southgate"
+N12,"North Finchley, Woodside Park"
+N13,Palmers Green
+N14,Southgate
+N15,Seven Sisters
+N16,"Stoke Newington, Stamford Hill"
+N17,Tottenham
+N18,Upper Edmonton
+N19,"Archway, Tufnell Park"
+N20,"Whetstone, Totteridge"
+N21,Winchmore Hill
+N22,"Wood Green, Alexandra Palace"
+NW1,"Regents Park, Camden Town"
+NW2,"Cricklewood, Neasden"
+NW3,"Hampstead, Swiss Cottage"
+NW4,"Hendon, Brent Cross"
+NW5,Kentish Town
+NW6,"West Hampstead, Kilburn, Queens Park"
+NW7,Mill Hill
+NW8,St Johns Wood
+NW9,"Kinsbury, Colindale"
+NW10,"Willesden, Harlesden, Kensal Green"
+NW11,"Golders Green, Hampstead Gdn Suburb"
+W14,West Kensington
+SE1,"Waterloo, Bermondsey, Southwark, Borough"
+SE2,Abbey Wood
+SE3,"Blackheath, Westcombe Park"
+SE4,"Brockley, Crofton Park, Honor Oak Park"
+SE5,Camberwell
+SE6,"Catford, Hither Green, Bellingham"
+SE7,Charlton
+SE8,Deptford
+SE9,"Eltham, Mottingham"
+SE10,Greenwich
+SE11,Lambeth
+SE12,"Lee, Grove Park"
+SE13,"Lewisham, Hither Green"
+SE14,"New Cross, New Cross Gate"
+SE15,"Peckham, Nunhead"
+SE16,"Rotherhithe, South Bermonsey, Surrey Docks"
+SE17,"Walworth, Elephant & Castle"
+SE18,"Woolwich, Plumstead"
+SE19,"Upper Norwood, Crystal Palace"
+SE20,"Penge, Anerley"
+SE21,Dulwich
+SE22,East Dulwich
+SE23,Forest Hill
+SE24,Herne Hill
+SE25,South Norwood
+SE26,Sydenham
+SE27,"West Norwood, Tulse Hill"
+SE28,Thamesmead
+SW1,"Westminster, Belgravia, Pimlico"
+SW2,"Brixton, Streatham Hill"
+SW3,"Chelsea, Brompton"
+SW4,Clapham
+SW5,Earls Court
+SW6,"Fulham, Parsons Green"
+SW7,South Kensington
+SW8,"South Lambeth, Nine Elms"
+SW9,"Stockwell, Brixton"
+SW10,"West Brompton, Worlds End"
+SW11,"Battersea, Clapham Junction"
+SW12,Balham
+SW13,"Barnes, Castelnau"
+SW14,"Mortlake, East Sheen"
+SW15,"Putney, Roehampton"
+SW16,"Streatham, Norbury"
+SW17,Tooting
+SW18,"Wandsworth, Earlsfield"
+SW19,"Wimbledon, Merton"
+SW20,"South Wimbledon, Raynes Park"
+W1,"Mayfair, Marylebone, Soho"
+W2,"Bayswater, Paddington"
+W3,Acton
+W4,Chiswick
+W5,Ealing
+W6,Hammersmith
+W7,Hanwell
+W8,Kensington
+W9,"Maida Vale, Warwick Avenue"
+W10,"Ladbroke Grove, North Kensington"
+W11,"Notting Hill, Holland Park"
+W12,Shepherds Bush
+W13,West Ealing
