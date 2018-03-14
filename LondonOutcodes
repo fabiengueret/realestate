@@ -1,0 +1,16 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Mar 13 18:55:43 2018
+
+@author: Fabien Gueret 4 TerraMollis Ltd.
+"""
+import csv
+
+LondonOutcodes = {}
+
+with open('londonoutcodes.csv',newline='') as csvfile:
+     LClist = csv.reader(csvfile,dialect='excel') 
+     for row in LClist:
+         LondonOutcodes[row[0]]=row[1]
+         
+print(LondonOutcodes)  
