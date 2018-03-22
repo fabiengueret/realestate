@@ -1,0 +1,75 @@
+from lxml import html, etree
+import requests
+import pandas as pd
+import datetime as dt
+import matplotlib.pyplot as plt
+import RM_Super_Scraper
+import re
+import sqlite3
+from outcodedict import urlRM, Outward
+
+#PostCodeT = input("Postcode? : ")
+# Ask for type of property advertised. asking until the answer starts with S or R
+# Initialisation 
+#SaleorRent = "Begin"
+#while SaleorRent.upper()[0] not in ["S","R"] :
+#      SaleorRent = input("Sale or Rent / S or R ? : ") 
+ 
+PostCodeT="SW11"
+SaleorRent = "S"
+     
+#Cut the answer to the first letter and upper case it to limit errors
+SaleorRent= SaleorRent.upper()[0]
+#print(SaleorRent)
+#url = urlRM(Outward(PostCodeT),SaleorRent)
+url='http://www.rightmove.co.uk/property-for-sale/find.html?searchType=SALE&locationIdentifier=POSTCODE%5E1602250&insId=1&radius=0.25&minPrice=&maxPrice=&minBedrooms=&maxBedrooms=&displayPropertyType=&maxDaysSinceAdded=&_includeSSTC=on&sortByPriceDescending=&primaryDisplayPropertyType=&secondaryDisplayPropertyType=&oldDisplayPropertyType=&oldPrimaryDisplayPropertyType=&newHome=&auction=false'
+
+# Scrape the webpage
+RMData = rightmove_data(url)
+
+#print(rightmove_object.result_pages_count)
+#print(rightmove_object.url)
+
+# Create the DataFrame of results
+df = RMData.get_results()
+
+# Look at some of the results
+print(set((df['date'])))
+
+
+#print(rightmove_object.result_count)
+
+# Quick look at the shape of the data.
+df.describe()
+
+# See which 'types' don't have bedroom number extracted
+list(df[df.number_bedrooms.isnull()].type.unique())
+
+
+# Create a DataFrame with summary statistics by number of bedrooms.
+funcs = ["mean", "count"]
+grouped_df = pd.DataFrame(df.groupby(["number_bedrooms"])["price"].agg(funcs).astype(int))
+grouped_df.rename(columns={"mean":"average_price"}, inplace=True)
+grouped_df
+
+
+# Drop the outlier for plotting.
+#grouped_df.drop(labels="6", axis=0, inplace=True)
+
+# Create scatter plots to visualise price by bedroom
+plt.figure(1,figsize=(10,6))
+plt.scatter(df['number_bedrooms'],df['price'], c= df['house'],s=20)
+plt.xlabel("Number of bedrooms")
+plt.ylabel("£ Price")
+# plt.ticklabel_format(style="plain")
+
+# Create histogram chart to visualise bedroom distribution
+plt.figure(num=2,figsize=(10,6))
+plt.hist(df['number_bedrooms'],bins='auto',range=[0,13], normed=True,facecolor="green")
+plt.xlabel("Number of bedrooms")
+plt.ylabel("Density")
+plt.axis([0, 14, 0, 3])
+# plt.ticklabel_format(style="plain")
+
+
+plt.show()
