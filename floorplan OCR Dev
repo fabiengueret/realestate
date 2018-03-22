@@ -1,0 +1,47 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Mar 20 15:46:30 2018
+
+@author: Fabien Gueret 4 TerraMollis Ltd.
+"""
+
+from lxml import html, etree
+#url management library
+import requests
+import io
+# OCR Wrapper
+import pytesseract
+# image management
+from PIL import Image,ImageEnhance, ImageFilter
+
+# test property
+property_url='http://www.rightmove.co.uk/property-for-sale/property-63061894.html'
+
+# set the path for the floorplan
+xp_floorplan = """//div[@id="floorplanTabs"]\
+                          //img/@src"""
+        
+# ref original url        
+fp ='http://media.rightmove.co.uk/dir/184k/183887/63061894/183887_1001445232_FLP_01_0000_max_600x600.png'
+
+ # Use the requests library to get the whole web page.
+page = requests.get(property_url)
+
+ # Process the html.
+tree = html.fromstring(page.content)
+     
+floorplan_urls = tree.xpath(xp_floorplan)
+
+
+if len(floorplan_urls)!=0 : 
+            floorplan_url =floorplan_urls[0]
+            response = requests.get(floorplan_url)
+            #print( type(response) ) # <class 'requests.models.Response'>
+            flrpln = Image.open(io.BytesIO(response.content))
+            #print( type(flrpln) ) # <class 'PIL.JpegImagePlugin.JpegImageFile'>
+            text = pytesseract.image_to_string(flrpln)
+            print( text )
+           
+            
+            
+else: floorplan_url = floorplan_urls  
