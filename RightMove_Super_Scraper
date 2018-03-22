@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# seeded by Wobbler / great work mate
+
 # Dependencies
 
 from lxml import html, etree
@@ -10,8 +10,11 @@ import pandas as pd
 #Time management library
 import datetime as dt
 # Database Library
-
-
+import numpy as np
+# open floorplan
+import io
+import pytesseract
+from PIL import Image
 
 class rightmove_data(object):
     """The rightmove_data web scraper works by implementing an instance of the class 
@@ -73,6 +76,88 @@ class rightmove_data(object):
 
         return page_count
 
+    def __get_individual_info(self,property_url):
+        """This is a hidden method to scrape the data from the individual property page
+           It is used iteratively by the .get_results() and _get_page_results
+           """
+        # Set the xpaths for the description
+        xp_keyfeatures = """//div[@class="sect key-features"]\
+                           //ul[@class="list-two-col list-style-square"]//li/text()"""
+        xp_desc = """//div[@class="sect "]\
+                     //p[@itemprop="description"]/text()"""
+        xp_firstlisted =  """//div[@id="firstListedDateValue"]/text()"""
+        
+        # Set the xpaths for the geo location of the property
+        xp_latlong = """//div[@class="pos-rel"]\
+                        //a[@class="block js-tab-trigger js-ga-minimap"]\
+                       //img/@src"""
+         
+        # set the path for the floorplan
+        xp_floorplan = """//div[@class="zoomableimagewrapper"]\
+                          //img/@src"""
+        
+        
+        
+        # Use the requests library to get the whole web page.
+        page = requests.get(property_url)
+
+        # Process the html.
+        tree = html.fromstring(page.content)
+        
+        # Create data lists from Xpaths.
+        fd = tree.xpath(xp_firstlisted)
+        if len(fd)!=0 : firstd =fd[0]
+        else: firstd = fd  
+        firstlisted = pd.to_datetime(firstd, dayfirst=True,format= '%d %B %Y',errors='ignore')        
+        # any text describing the property
+        list_key_features = tree.xpath(xp_keyfeatures)
+        keyfeatures = ' '.join(list_key_features) 
+        keyfeatures = keyfeatures.replace('/',' ')
+        desc = tree.xpath(xp_desc)
+        description = ' '.join(desc) 
+        #the full text available to mininge
+        description = description+' '+ keyfeatures
+        #the unique words in the description
+        descWords =list(set(description.replace('/',' ').replace('.','').replace('\'','').replace(',','').lower().split()))
+
+        #try to find the square footage 
+        regex = r'(?<= )(\d\d*[,\.]?\d+)+(?=[ .]?sq)'
+        listsqftage=re.findall(regex,description.lower())
+        f=[float(i.replace(',',''))for i in listsqftage]
+        if len(f)!=0 : sqftage=float(max(f))
+        else: sqftage = f  
+        
+        # find square footage in the floorplan
+        floorplan_urls = tree.xpath(xp_floorplan)
+        if len(floorplan_urls)!=0 : 
+            floorplan_url =floorplan_urls[0]
+#           print(floorplan_url)
+            response = requests.get(floorplan_url)
+            #print( type(response) ) # <class 'requests.models.Response'>
+            flrpln = Image.open(io.BytesIO(response.content))
+            #print( type(flrpln) ) # <class 'PIL.JpegImagePlugin.JpegImageFile'>
+            text = pytesseract.image_to_string(flrpln)
+            print( text )
+        else: floorplan_url = floorplan_urls  
+        
+      
+        
+        
+        # Latitute longitude
+        latlongs = tree.xpath(xp_latlong)
+        latlong=' '.join(latlongs)
+        regexlat = r'(?<=latitude=)(-?\d\d*[\.]?\d+)'
+        regexlon = r'(?<=longitude=)(-?\d\d*[\.]?\d+)'
+        lat=re.findall(regexlat,latlong)
+        if len(lat)!=0 : latitude=lat[0]
+        else: latitude = lat
+        lon = re.findall(regexlon,latlong)
+        if len(lon)!=0 : longitude= lon[0]
+        else: longitude = lon
+        
+        
+        
+        return [latitude , longitude , descWords , sqftage , firstlisted]
     
     def __get_page_results(self,page_url):
         """This is a hidden method to scrape the data from a single page
@@ -99,13 +184,6 @@ class rightmove_data(object):
         xp_weblinks = """//div[@class="propertyCard-details"]\
         //a[@class="propertyCard-link"]/@href"""
      
-
- #       xp_agent_urls = """//div[@class="propertyCard-contactsItem"]\
- #       //div[@class="propertyCard-branchLogo"]\
- #       //a[@class="propertyCard-branchLogo-link"]/@href"""
-
-
-
         # Use the requests library to get the whole web page.
         page = requests.get(page_url)
 
@@ -121,29 +199,45 @@ class rightmove_data(object):
         urlbase = "http://www.rightmove.co.uk"
         weblinks = ["{}{}".format(urlbase, tree.xpath(xp_weblinks)[val]) \
                     for val in range(len(tree.xpath(xp_weblinks)))]
-#        agent_urls = ["{}{}".format(urlbase, tree.xpath(xp_agent_urls)[val]) \
-#                      for val in range(len(tree.xpath(xp_agent_urls)))]
-        
+               
+        ######### obtain the supplementary info on individual pages
+        latitude =[]
+        longitude = []
+        descwords=[]
+        sqftage=[]
+        firstlisted=[]
+        i=0
+        for weblink in weblinks:
+            if weblink != urlbase:
+                info = self.__get_individual_info(weblink)
+                latitude.append(info[0])
+                longitude.append(info[1])
+                descwords.append(info[2])
+                sqftage.append(info[3])
+                firstlisted.append(info[4])
+                # type here the floorplan retrieval and processsing
+       
+          
         # Store the data in a temporary pandas DataFrame.
-        data = [price_pcm, titles, addresses, laius, addedon , weblinks]
-#        data = [price_pcm, titles, addresses, laius, addedon , weblinks, agent_urls]    
+        data = [price_pcm, titles, addresses, laius, addedon , weblinks , latitude , longitude , descwords , sqftage , firstlisted]
+       
         temp_df = pd.DataFrame(data)
+       
         temp_df = temp_df.transpose()
-        temp_df.columns = ["price", "type", "address", "short desc", "listing date","url"]
-#        temp_df.columns = ["price", "type", "address", "short desc", "listing date","url", "agent_url"]
+        temp_df.columns = ["price", "type", "address", "short desc", "listing date",'url','latitude','longitude', 'descwords','sqftage','firstlisted' ]
+        
         # Drop empty rows which come from placeholders in the html.
         temp_df = temp_df[temp_df["address"].notnull()]
-
+        
         return temp_df
-
     
+
+                
     def get_results(self):
         """Returns a pandas DataFrame with all results returned by the search."""
 
         # Create DataFrame to store results.
-        full_results = pd.DataFrame(columns={"price", "type", "address", "short desc", "listing date","url"})
-#        full_results = pd.DataFrame(columns={"price", "type", "address", "short desc", "listing date","url", "agent_url"})
-
+        full_results = pd.DataFrame(columns={"price", "type", "address", "short desc", "listing date",'url','latitude','longitude', 'descwords','sqftage','firstlisted' })
         # Iterate through pages of results, using the .__get_page_results method to scrape results.
         for page in range(0, self.result_pages_count+1, 1):
 
@@ -169,23 +263,30 @@ class rightmove_data(object):
         (r"\b([A-Za-z][A-Za-z]?[0-9][0-9]?[A-Za-z]?)\b", expand=True)
 
         # Extract creation/modification date to a separate column.
-        full_results["Date_Latest"] = full_results["listing date"].str[-10:]
-        full_results["Date_Type"] = full_results["listing date"].str[:-10]
-        full_results["Date_Type"] = full_results["Date_Type"].str.strip()
+        date_cond =    [full_results["listing date"].str.contains("today"),
+                        full_results["listing date"].str.contains("yesterday"),
+                        (~full_results["listing date"].str.contains("today") & ~full_results["listing date"].str.contains("yesterday"))]
+        date_choices = [ dt.date.today().strftime( '%d/%m/%Y'),
+                         (dt.date.today()-dt.timedelta(1)).strftime( '%d/%m/%Y'),
+                         pd.to_datetime(full_results["listing date"].str[-10:],
+                                       dayfirst=True,format= '%d/%m/%Y',errors='ignore')]
+        full_results['date'] = np.select(date_cond, date_choices) 
+                
+        full_results["date_type"] = full_results["listing date"].str[:-10]
+        full_results["date_Type"] = full_results["date_type"].str.strip()
         
          # Extract RM property ID
         full_results["RM_ID"] = full_results["url"].str[54:-5]
         
-     #######Below we extract underlying information from type
-        
+        #######Below we extract underlying information from type
         # Extract number of bedrooms from "type" to a separate column.
         full_results["number_bedrooms"] = full_results.type.str.extract(r"\b([\d][\d]?)\b", expand=True)
         full_results.loc[full_results["type"].str.contains("studio", case=False), "number_bedrooms"]=0
-        
+        full_results["number_bedrooms"]=full_results["number_bedrooms"].astype(float)
         # House, flat, detached, semi detached terraced penthouse duplex triplex
         full_results['flat'] = full_results.type.str.contains('apartment|flat|plex|maisonette|penthouse')
         full_results['house'] = ~full_results.type.str.contains('apartment|flat|plex|maisonette|penthouse|land|plot')
-        full_results['detached'] = full_results[(full_results.type.str.contains("detached") == True) & (full_results.type.str.contains("semi") == False)]
+        full_results['detached'] = full_results.type.str.contains("detached") & ~full_results.type.str.contains("semi")
         full_results['semi-d'] = full_results.type.str.contains('semi')
         full_results['penthouse'] = full_results.type.str.contains('penthouse')
         full_results['duplex'] = full_results.type.str.contains('plex')
@@ -203,6 +304,6 @@ class rightmove_data(object):
         full_results["search_date"] = now
         
         # Remove superfluous columns and data
-        full_results = full_results.drop(['listing date','url'], axis= 1)
+        full_results = full_results.drop(['listing date'], axis= 1)
 
         return full_results
